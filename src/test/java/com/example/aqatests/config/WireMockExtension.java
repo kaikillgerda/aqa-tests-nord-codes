@@ -15,34 +15,20 @@ public class WireMockExtension implements BeforeAllCallback, AfterAllCallback, B
 
     @Override
     public void beforeAll(ExtensionContext context) {
-        // Создаём сервер с портом 8888 и включаем подробное логирование
         wireMockServer = new WireMockServer(WireMockConfiguration.options()
-                .port(8888)
-                .notifier(new ConsoleNotifier(true))); // true — подробный вывод
+                .port(AppConfig.getMockPort())
+                .notifier(new ConsoleNotifier(true)));
         wireMockServer.start();
-
-        // Настраиваем клиент на правильный порт
-        WireMock.configureFor("localhost", 8888);
-
-        // Небольшая задержка для гарантии запуска (можно убрать, если не требуется)
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        WireMock.configureFor(AppConfig.getMockBaseUrl(), AppConfig.getMockPort());
     }
 
     @Override
     public void beforeEach(ExtensionContext context) {
-        if (wireMockServer != null) {
-            wireMockServer.resetAll();
-        }
+        if (wireMockServer != null) wireMockServer.resetAll();
     }
 
     @Override
     public void afterAll(ExtensionContext context) {
-        if (wireMockServer != null) {
-            wireMockServer.stop();
-        }
+        if (wireMockServer != null) wireMockServer.stop();
     }
 }
