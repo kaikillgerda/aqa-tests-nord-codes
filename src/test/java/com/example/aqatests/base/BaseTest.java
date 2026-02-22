@@ -1,5 +1,6 @@
 package com.example.aqatests.base;
 
+import io.qameta.allure.Step;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
@@ -22,6 +23,7 @@ public abstract class BaseTest {
                 .log().all();  // Добавляем логирование для отладки
     }
 
+    @Step ("Отправка post-запроса в приложение")
     protected Response sendRequest(String token, String action) {
         return requestSpec
                 .formParam("token", token)

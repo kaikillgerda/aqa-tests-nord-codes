@@ -2,6 +2,7 @@ package com.example.aqatests.config;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
@@ -14,13 +15,16 @@ public class WireMockExtension implements BeforeAllCallback, AfterAllCallback, B
 
     @Override
     public void beforeAll(ExtensionContext context) {
-        wireMockServer = new WireMockServer(WireMockConfiguration.options().port(8888));
+        // Создаём сервер с портом 8888 и включаем подробное логирование
+        wireMockServer = new WireMockServer(WireMockConfiguration.options()
+                .port(8888)
+                .notifier(new ConsoleNotifier(true))); // true — подробный вывод
         wireMockServer.start();
 
         // Настраиваем клиент на правильный порт
         WireMock.configureFor("localhost", 8888);
 
-        // Даем серверу время на полный запуск
+        // Небольшая задержка для гарантии запуска (можно убрать, если не требуется)
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
