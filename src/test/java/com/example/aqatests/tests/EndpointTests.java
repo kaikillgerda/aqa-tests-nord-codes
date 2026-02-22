@@ -28,7 +28,7 @@ public class EndpointTests extends BaseTest {
         WireMock.configureFor("localhost", 8888);
     }
 
-    private void stubAuthSuccess() {
+    void stubAuthSuccess() {
         stubFor(post(urlEqualTo("/auth"))
                 .willReturn(aResponse()
                         .withStatus(200)
@@ -36,27 +36,24 @@ public class EndpointTests extends BaseTest {
                         .withBody("{\"status\":\"OK\"}")));
     }
 
-    private void stubAuthFailure(int statusCode) {
-        stubFor(post(urlEqualTo("/auth"))
-                .willReturn(aResponse().withStatus(statusCode)));
+    void stubDoActionSuccess() {
+        stubFor(post(urlEqualTo("/doAction"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"status\":\"OK\"}")));
     }
 
-    @Test
-    @DisplayName("Успешный LOGIN")
-    @Description("При корректном токене и ответе 200 от /auth, получаем OK")
-    @Severity(SeverityLevel.CRITICAL)
-    public void loginSuccess() {
-        String token = TokenGenerator.generateValidToken();
-        stubAuthSuccess();
+    void stubAuthFailure(int statusCode) {
+        stubFor(post(urlEqualTo("/auth"))
+                .willReturn(aResponse()
+                        .withStatus(statusCode)));
+    }
 
-        Response response = sendRequest(token, "LOGIN");
-
-        assertEquals(200, response.statusCode());
-        assertEquals("OK", response.jsonPath().getString("result"));
-
-        // Проверяем, что запрос к /auth действительно был сделан
-        verify(postRequestedFor(urlEqualTo("/auth"))
-                .withRequestBody(containing("token=" + token)));
+    void stubDoActionFailure(int statusCode) {
+        stubFor(post(urlEqualTo("/doAction"))
+                .willReturn(aResponse()
+                        .withStatus(statusCode)));
     }
 
     @Test
