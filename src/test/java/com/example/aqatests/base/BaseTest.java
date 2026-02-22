@@ -1,37 +1,35 @@
 package com.example.aqatests.base;
 
-import com.example.aqatests.config.WireMockConfig;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ExtendWith(WireMockConfig.class)
 public abstract class BaseTest {
-
-    @LocalServerPort
-    protected int port;
 
     protected RequestSpecification requestSpec;
 
     @BeforeEach
     public void setUp() {
         RestAssured.baseURI = "http://localhost";
-        RestAssured.port = port;
+        RestAssured.port = 8080;  // Порт тестируемого приложения
+
         requestSpec = RestAssured.given()
                 .contentType(ContentType.URLENC)
                 .accept(ContentType.JSON)
-                .header("X-Api-Key", "qazWSXedc");
+                .header("X-Api-Key", "qazWSXedc")
+                .log().all();  // Добавляем логирование для отладки
     }
 
-    @DynamicPropertySource
-    static void properties(DynamicPropertyRegistry registry) {
-        registry.add("mock", () -> "http://localhost:8888");
+    protected Response sendRequest(String token, String action) {
+        return requestSpec
+                .formParam("token", token)
+                .formParam("action", action)
+                .when()
+                .post("/endpoint")
+                .then()
+                .log().all()  // Логируем ответ для отладки
+                .extract().response();
     }
 }
